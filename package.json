@@ -1,0 +1,25 @@
+{
+  "name": "echoverse",
+  "version": "1.0.0",
+  "description": "Echoverse is a social network API that can be used to create and store Users and their thoughts, reactions to their thoughts, and save other users as their friends",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShaneLeeJohnson/Echoverse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShaneLeeJohnson/Echoverse/issues"
+  },
+  "homepage": "https://github.com/ShaneLeeJohnson/Echoverse#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.2.4"
+  }
+}
