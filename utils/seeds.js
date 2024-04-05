@@ -49,4 +49,4 @@ const seedDatabase = async () => {
 
 seedDatabase().then(() => {
     mongoose.connection.close();
-})
+});
