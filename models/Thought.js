@@ -43,6 +43,6 @@ function formattedDate(timestamp) {
     return `${day}/${month}/${year} ${hours}:${minutes} ${amPm}`;
 }
 
-const Thought = model('thought');
+const Thought = model('thought', thoughtSchema);
 
 module.exports = Thought;
