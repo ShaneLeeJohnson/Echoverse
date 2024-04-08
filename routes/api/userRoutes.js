@@ -58,10 +58,65 @@ router.delete('/:userId', async (req, res) => {
     try {
         const deletedUser = await User.findByIdAndDelete(req.params.userId);
         if (!deletedUser) {
-            return res.status(404).json({message: 'User not found!'});
+            return res.status(404).json({ message: 'User not found!' });
         }
-        await Thought.deleteMany({ username: deletedUser.username});
-        res.json({message: 'User and associated thoughts deleted!'});
+        await Thought.deleteMany({ username: deletedUser.username });
+        res.json({ message: 'User and associated thoughts deleted!' });
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.post('/:userId/friends/:friendId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const friendId = req.params.friendId;
+
+        const friend = await User.findById(friendId);
+        if (!friend) {
+            return res.status(404).json({ message: 'Friend not found!' });
+        }
+
+        await User.findByIdAndUpdate(
+            userId,
+            { $push: { friends: friendId } },
+            { new: true }
+        );
+
+        await User.findByIdAndUpdate(
+            friendId,
+            { $push: { friends: userId } },
+            { new: true }
+        );
+
+        res.json({ message: 'Friend added successfully!' });
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.delete('/:userId/friends/:friendId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const friendId = req.params.friendId;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $pull: { friends: friendId } },
+            { new: true }
+        );
+
+        await User.findByIdAndUpdate(
+            friendId,
+            { $pull: { friends: userId } },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found!' });
+        }
+
+        res.json({ message: 'Friend removed successfully!' });
     } catch (err) {
         res.status(500).json(err);
     }
