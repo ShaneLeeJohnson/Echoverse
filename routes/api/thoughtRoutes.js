@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Thought = require('../../models/Thought');
 const User = require('../../models/User');
+const { ReactionSchema } = require('../../models/Reaction.js');
 
 router.get('/', async (req, res) => {
     try {
@@ -90,6 +91,57 @@ router.delete('/:thoughtId', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error deleting thought!' });
+    }
+});
+
+router.post('/:thoughtId/reactions', async (req, res) => {
+    console.log('Line 98:', req.body);
+    try {
+        const thoughtId = req.params.thoughtId;
+        const reactionBody = req.body;
+
+        const newReaction = new ReactionSchema(reactionBody);
+        console.log('Line: 104:', newReaction._id);
+        await newReaction.save();
+
+        const updatedThought = await Thought.findByIdAndUpdate(
+            thoughtId,
+            { $push: { reactions: newReaction._id } },
+            { new: true }
+        );
+
+        console.log('Line 112:', updatedThought);
+
+        if (!updatedThought) {
+            return res.status(404).json({ message: 'Thought not found!' });
+        }
+
+        res.json({ message: 'Reaction created successfully!', reaction: newReaction });
+    } catch (err) {
+        res.status(400).json(err);
+    }
+});
+
+router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {
+    try {
+        const thoughtId = req.params.thoughtId;
+        const reactionId = req.params.reactionId;
+
+        const updatedThought = Thought.findByIdAndUpdate(
+            thoughtId,
+            { $pull: { reactions: reactionId } },
+            { new: true }
+        );
+
+        if (!updatedThought) {
+            return res.status(404).json({ message: 'Thought not found!' });
+        }
+
+        await ReactionSchema.findByIdAndDelete(reactionId);
+
+        res.json({ message: 'Reaction removed successfully!' });
+    } catch (err) {
+        res.status(500).json(err);
     }
 });
 
