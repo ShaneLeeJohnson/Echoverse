@@ -11,11 +11,11 @@ mongoose.connect(connectionURI)
 const seedUsers = [
     {
         username: 'michaelscott',
-        email: 'worldsbestboss@dm.com',
+        email: 'worldsbestboss@dm.com'
     },
     {
         username: 'dumbledore',
-        email: 'dumbledore@hogwarts.edu',
+        email: 'dumbledore@hogwarts.edu'
     },
 ];
 
