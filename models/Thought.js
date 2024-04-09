@@ -1,5 +1,33 @@
-const { Schema, model } = require('mongoose');
-const reactionSchema = require('./Reaction');
+const { Schema, model, Types } = require('mongoose');
+
+const reactionSchema = new Schema(
+    {
+        reactionId: {
+            type: Schema.Types.ObjectId,
+            default: () => new Types.ObjectId(),
+        },
+        reactionBody: {
+            type: String,
+            required: true,
+            maxlength: 280,
+        },
+        username: {
+            type: String,
+            required: true,
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            get: (timestamp) => formattedDate(timestamp),
+        },
+    },
+    {
+        toJSON: {getters: true},
+        id: false
+    }
+);
+
+const Reaction = model('Reaction', reactionSchema);
 
 const thoughtSchema = new Schema(
     {
@@ -18,11 +46,11 @@ const thoughtSchema = new Schema(
             type: String,
             required: true,
         },
-        reactions: [reactionSchema],
+        reactions: [{type: Schema.Types.ObjectId, ref: 'Reaction'}],
     },
     {
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true },
+        toJSON: { virtuals: true, getters: true },
+        id: false
     }
 );
 
@@ -45,4 +73,4 @@ function formattedDate(timestamp) {
 
 const Thought = model('Thought', thoughtSchema);
 
-module.exports = Thought;
+module.exports = { Thought, Reaction };

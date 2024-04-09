@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const Thought = require('../../models/Thought');
+const { Thought, Reaction } = require('../../models/Thought');
 const User = require('../../models/User');
-const { ReactionSchema } = require('../../models/Reaction.js');
 
 router.get('/', async (req, res) => {
     try {
         const thoughts = await Thought.find()
-            .select('-__v');
+            .select('-__v')
+            .populate('reactions');
         res.json(thoughts);
     } catch (err) {
         res.status(500).json(err);
@@ -99,9 +99,11 @@ router.post('/:thoughtId/reactions', async (req, res) => {
     try {
         const thoughtId = req.params.thoughtId;
         const reactionBody = req.body;
+        console.log(thoughtId);
+        console.log(reactionBody);
 
-        const newReaction = new ReactionSchema(reactionBody);
-        console.log('Line: 104:', newReaction._id);
+        const newReaction = new Reaction(reactionBody);
+        console.log('Line: 104:', newReaction);
         await newReaction.save();
 
         const updatedThought = await Thought.findByIdAndUpdate(
@@ -118,26 +120,32 @@ router.post('/:thoughtId/reactions', async (req, res) => {
 
         res.json({ message: 'Reaction created successfully!', reaction: newReaction });
     } catch (err) {
+        console.error(err);
         res.status(400).json(err);
     }
 });
 
 router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {
+    console.log(req.params.thoughtId);
     try {
         const thoughtId = req.params.thoughtId;
         const reactionId = req.params.reactionId;
+        console.log(thoughtId);
+        console.log(reactionId);
 
-        const updatedThought = Thought.findByIdAndUpdate(
+        const updatedThought = await Thought.findByIdAndUpdate(
             thoughtId,
             { $pull: { reactions: reactionId } },
             { new: true }
         );
 
+        console.log('Line 141:', updatedThought);
+
         if (!updatedThought) {
             return res.status(404).json({ message: 'Thought not found!' });
         }
 
-        await ReactionSchema.findByIdAndDelete(reactionId);
+        await Reaction.findByIdAndDelete(reactionId);
 
         res.json({ message: 'Reaction removed successfully!' });
     } catch (err) {
